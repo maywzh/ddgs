@@ -75,7 +75,7 @@ dev = [
     "types-pyasn1"
 ]
 mcp = [
-    "mcp>=1.26.0,<2.0",
+    "mcp>=2.0",
 ]
 api = [
     "fastapi>=0.135.1",
