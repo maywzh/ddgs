@@ -30,7 +30,7 @@ pip install -U ddgs[mcp]  # MCP server (stdio)
 ## CLI version
 
 ```python3
-ddgs --help
+ddgs - -help
 ```
 
 [Go To TOP](#TOP)

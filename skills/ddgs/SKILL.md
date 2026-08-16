@@ -19,13 +19,13 @@ results = DDGS().text("python async", max_results=5)
 
 # Images, news, videos, books
 images = DDGS().images("butterfly", max_results=5)
-news   = DDGS().news("ai regulation", timelimit="w")
+news = DDGS().news("ai regulation", timelimit="w")
 videos = DDGS().videos("rust programming")
-books  = DDGS().books("machine learning")
+books = DDGS().books("machine learning")
 
 # Extract content from a URL
 page = DDGS().extract("https://example.com")
-page["content"]          # Markdown text (default)
+page["content"]  # Markdown text (default)
 page = DDGS().extract("https://example.com", fmt="text_plain")
 page = DDGS().extract("https://example.com", fmt="content")  # raw bytes
 ```
