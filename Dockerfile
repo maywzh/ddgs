@@ -19,8 +19,8 @@ RUN apt-get update && apt-get upgrade -y \
 # Copy application code
 COPY . .
 
-# Install Python dependencies (including API dependencies)
-RUN pip install --no-cache-dir -e .[api]
+# Install Python dependencies (API + MCP server)
+RUN pip install --no-cache-dir -e .[api,mcp]
 
 # Expose port
 EXPOSE 8000
@@ -30,5 +30,8 @@ RUN useradd --create-home --shell /bin/bash app \
     && chown -R app:app /app
 USER app
 
-# Run the application using uvicorn
-CMD ["python", "-m", "uvicorn", "ddgs.api_server:fastapi_app", "--host", "0.0.0.0", "--port", "8000"]
+# Default: run Streamable HTTP MCP server
+# Override CMD to run other modes, e.g.:
+#   uvicorn ddgs.api_server:fastapi_app --host 0.0.0.0 --port 8000   (REST API)
+#   ddgs mcp                                                         (stdio MCP)
+CMD ["ddgs", "mcp-http", "--host", "0.0.0.0", "--port", "8000"]
