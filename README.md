@@ -91,9 +91,20 @@ pip install -U ddgs[mcp]
 
 - **CLI**
 ```bash
+# stdio transport (for Cursor / Claude Desktop / local MCP clients)
 ddgs mcp    # Start MCP server (stdio transport)
 ddgs mcp -pr socks5h://127.0.0.1:9150  # With proxy
+
+# Streamable HTTP transport (for remote / containerized clients)
+ddgs mcp-http                                 # Bind 0.0.0.0:8000/mcp
+ddgs mcp-http --host 127.0.0.1 --port 9000    # Custom bind
+ddgs mcp-http -pr socks5h://127.0.0.1:9150    # With proxy
 ```
+
+The Streamable HTTP server speaks both MCP `2025-11-25` and `2026-07-28`
+protocol revisions from the same endpoint, so a 2026-era client
+(no `initialize` handshake, no `Mcp-Session-Id`) and a legacy client
+(`initialize` then stateful session) both work with zero configuration.
 
 #### Available Tools
 
