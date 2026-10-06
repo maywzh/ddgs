@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import os
+from collections.abc import Callable
 from typing import Any
 
 from mcp.server.mcpserver import MCPServer
@@ -244,3 +245,35 @@ async def extract_content(url: str, fmt: str = "text_markdown") -> dict[str, str
             fmt=fmt,
         )
     )
+
+
+# All tool functions (excluding the mcp instance) for factory use.
+# The @mcp.tool() decorator returns the original function, so these
+# can be passed to add_tool() on a different MCPServer instance.
+# In MCP SDK v2, transport parameters (host/port/path) are passed to
+# run_streamable_http_async(), not the constructor.
+TOOLS: list[Callable[..., Any]] = [
+    search_text,
+    search_images,
+    search_news,
+    search_videos,
+    search_books,
+    extract_content,
+]
+
+
+def create_http_mcp() -> MCPServer:
+    """Create an MCPServer instance pre-registered with all search tools.
+
+    In MCP SDK v2, transport configuration is passed when starting the
+    server via ``run_streamable_http_async(host=..., port=...,
+    streamable_http_path=...)``, not at construction time.
+
+    Returns:
+        MCPServer instance with all DDGS tools registered.
+
+    """
+    http_mcp = MCPServer("ddgs-search")
+    for tool_fn in TOOLS:
+        http_mcp.add_tool(tool_fn)
+    return http_mcp

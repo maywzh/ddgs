@@ -596,6 +596,51 @@ def mcp(proxy: str | None) -> None:
     asyncio.run(mcp_server.run_stdio_async())
 
 
+@cli.command("mcp-http")
+@click.option("--host", default="0.0.0.0", help="Host to bind the server to")  # noqa: S104
+@click.option("--port", default=8000, type=int, help="Port to bind the server to")
+@click.option("--path", default="/mcp", help="Streamable HTTP endpoint path")
+@click.option("-pr", "--proxy", help="the proxy to send requests, example: socks5h://127.0.0.1:9150")
+def mcp_http(host: str, port: int, path: str, proxy: str | None) -> None:
+    """Start DDGS MCP server over Streamable HTTP transport.
+
+    Runs a Streamable HTTP MCP server with all search tools available.
+    Clients connect via HTTP POST to the /mcp endpoint.
+
+    Examples:
+        ddgs mcp-http                                # Start on http://0.0.0.0:8000/mcp
+        ddgs mcp-http --host 127.0.0.1 --port 9000   # Bind to localhost:9000
+        ddgs mcp-http -pr socks5h://127.0.0.1:9150   # With proxy
+
+    """
+    try:
+        from ddgs.api_server.mcp import create_http_mcp  # noqa: PLC0415
+    except ImportError:
+        click.echo("Error: MCP dependencies not installed. Run: pip install 'ddgs[mcp]'", err=True)
+        return
+
+    if proxy:
+        os.environ["DDGS_PROXY"] = _expand_proxy_tb_alias(proxy) or proxy
+
+    import asyncio  # noqa: PLC0415
+
+    http_mcp = create_http_mcp()
+
+    click.echo(f"Starting DDGS MCP Streamable HTTP server on http://{host}:{port}{path}")
+    if proxy:
+        click.echo(f"Using proxy: {os.environ['DDGS_PROXY']}")
+    click.echo("Press Ctrl+C to stop")
+
+    # MCP SDK v2: transport parameters are passed to run_*() instead of the constructor.
+    asyncio.run(
+        http_mcp.run_streamable_http_async(
+            host=host,
+            port=port,
+            streamable_http_path=path,
+        )
+    )
+
+
 @cli.command()
 @click.option("-d", "--detach", is_flag=True, help="Run the server in detached mode (background)")
 @click.option("-s", "--stop", is_flag=True, help="Stop the detached server")
